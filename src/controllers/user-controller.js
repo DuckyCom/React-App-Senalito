@@ -5,35 +5,45 @@ const router = express.Router();
 const userService = new UserService();
 
 /* PUNTO 6: Autenticacion de Usuarios */
-router.post("/login", async (req,res)=>{
-    const { username, password } = req.body;
-    if(username && password){
-        const token = await userService.verificacionUsuario(username, password);
-        if(token){
-            return res.status(200).send({
-                success: true,
-                message: "User Founded",
-                token: token
-            });
-        }
-        else{
-            return res.status(401).send({
+router.post("/login", async (req, res) => {
+    const { first_name, password } = req.body;
+    if (first_name && password) {
+        try {
+            const token = await userService.verificacionUsuario(first_name, password);
+            if (token) {
+                return res.status(200).send({
+                    success: true,
+                    message: "User Found",
+                    token: token
+                });
+            } else {
+                return res.status(401).send({
+                    success: false,
+                    message: "username or password invalid",
+                    token: ""
+                });
+            }
+        } catch (error) {
+            console.error("Error en login:", error);
+            return res.status(500).send({
                 success: false,
-                message: "Username or password invalid",
-                token: ""
+                message: "Internal server error"
             });
         }
-    }
-    else{
-        return res.status(400);
+    } else {
+        return res.status(400).send({
+            success: false,
+            message: "username and password are required"
+        });
     }
 });
+
 
 // MENSAJE PARA EL PROFE: HOLA, SOY NOAH, TE QUERIA DECIR QUE HAY UN BUG/ERROR CON EL CREAR QUE TENES QUE TOCAR "SEND" 3 VECES PARA QUE TE TOME EL ID=3 (ya que hay ya existentes 2 users anteriores)
 router.post("/register", async (req, res) => {
     const { first_name, last_name, username, password } = req.body;
     const userService = new UserService();
-    const crearUsuario = verificadorDeRegistro(first_name, last_name, username, password);
+    const crearUsuario = verificadorDeRegistro(first_name, last_name, first_name, password);
     if(crearUsuario === true){
         if(await userService.crearUsuario(first_name, last_name, username, password)){
             return res.status(201).send({
@@ -44,7 +54,7 @@ router.post("/register", async (req, res) => {
                 message: 'User registered successfully',
             });
         } else {
-            return res.status(400).send("Username ya existente");
+            return res.status(400).send("first_name ya existente");
         }    
     } else {
         return res.status(400).send(crearUsuario);
