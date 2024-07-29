@@ -1,0 +1,180 @@
+/* src/components/EmergencyScreen.css */
+.emergency-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #121212;
+    color: white;
+    font-family: Arial, sans-serif;
+    padding: 16px;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    background-color: #121212;
+  }
+  
+  .back-button, .settings-button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+  
+  .location {
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  
+  .content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  .content h1 {
+    font-size: 1.2rem;
+    margin: 8px 0;
+  }
+  
+  .content p {
+    font-size: 0.9rem;
+    margin: 8px 0;
+  }
+  
+  .image-container {
+    margin-top: 16px;
+  }
+  
+  .image-container img {
+    width: 100px;
+    height: auto;
+  }
+  
+  .sos-button-container {
+    margin-top: 24px;
+  }
+  
+  .sos-button {
+    background: radial-gradient(circle, rgba(26,115,232,1) 0%, rgba(24,106,218,1) 70%);
+    border: none;
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    color: white;
+    font-size: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 0 15px rgba(26,115,232,0.5);
+  }
+  
+  .sos-button span {
+    font-size: 0.8rem;
+  }
+  
+  .footer {
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+    background-color: #121212;
+  }
+  
+  .footer button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .footer button:before {
+    content: "•";
+    font-size: 1.2rem;
+    margin-bottom: 4px;
+  }
+  
+  /* .footer button:nth-child(1):before { content: url('path/to/home-icon.png'); }
+  .footer button:nth-child(2):before { content: url('path/to/interpreter-icon.png'); }
+  .footer button:nth-child(3):before { content: url('path/to/education-icon.png'); }
+  .footer button:nth-child(4):before { content: url('path/to/emergency-icon.png'); }
+  .footer button:nth-child(5):before { content: url('path/to/profile-icon.png'); } */
+  
+
+  /* Media Queries for Responsive Design */
+  @media (max-width: 768px) {
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .location {
+      font-size: 0.8rem;
+    }
+  
+    .sos-button {
+      width: 120px;
+      height: 120px;
+      font-size: 1.2rem;
+    }
+  
+    .sos-button span {
+      font-size: 0.7rem;
+    }
+  
+    .footer {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .footer button {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .header {
+      padding: 0.5rem;
+    }
+  
+    .back-button, .settings-button {
+      font-size: 1.2rem;
+    }
+  
+    .location {
+      font-size: 0.7rem;
+    }
+  
+    .content {
+      padding: 0.5rem;
+    }
+  
+    .sos-button {
+      width: 100px;
+      height: 100px;
+      font-size: 1rem;
+    }
+  
+    .sos-button span {
+      font-size: 0.6rem;
+    }
+  
+    .footer button {
+      font-size: 0.8rem;
+    }
+  }
+  
