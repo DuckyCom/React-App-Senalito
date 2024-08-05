@@ -9,12 +9,12 @@ client.connect();
 export class UserService {
     async verificacionUsuario(username, password){
         const userRepository = new UserRepository(); 
-        const resultadoV = userRepository.verificacionUsuario(username, password);
+        const resultadoV = await userRepository.verificacionUsuario(username, password);
         return resultadoV 
     }
-    async crearUsuario(first_name, last_name, username, password){
+    async crearUsuario(first_name, username, email, password){
         const userRepository = new UserRepository();
-        const resultadoC = userRepository.crearUsuarioRep(first_name, last_name, username, password);
+        const resultadoC = userRepository.crearUsuarioRep(first_name, username, email, password);
         return resultadoC;
     }
 

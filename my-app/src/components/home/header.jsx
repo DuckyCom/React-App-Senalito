@@ -1,5 +1,5 @@
 import React from 'react';
-import FotoP from '../img/fotoperfil.png' 
+import FotoP from '../img/juan.png'
 
 const Header = () => (
   <header className="header">

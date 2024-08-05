@@ -1,38 +1,51 @@
-import React, { useEffect, useState } from "react";
-import Logo from "../img/logo.png";
-import Flecha from "../img/Shape.png";
-import GoogleSvg from "../img/icons8-google.svg";
-// import { FaEye } from "react-icons/fa6";
-// import { FaEyeSlash } from "react-icons/fa6";
-import User from "../img/user.png";
+import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom'; // Usar react-router para redireccionar
 import axios from 'axios';
+import Logo from "../img/logo.png";
+import "./login.css";
 
 const Login = () => {
-    const [first_name, setfirst_name] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const [loginError, setLoginError] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
+    const [message, setMessage] = useState({ text: '', type: '' });
+    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
             const response = await axios.post('http://localhost:7777/api/user/login', {
-                first_name,
+                email,
                 password
             });
 
-            if (response.data.success) {
-                setSuccessMessage('Inicio de sesión exitoso');
-                console.log('Token:', response.data.token);
-                // Aquí podrías guardar el token en el estado o en localStorage
+            if (response.status) {
+                setMessage({ text: 'Inicio de sesión exitoso', type: 'success' });
+                setTimeout(() => {
+                    setMessage({ text: 'Iniciando...', type: 'success' });
+                    setTimeout(() => {
+                        navigate('/home');
+                    }, 2000);
+                }, 2000); // 2000 milisegundos = 2 segundos
             } else {
-                setLoginError(response.data.message);
+                // Mostrar mensaje de error como alerta
+                window.alert('Credenciales inválidas');
             }
         } catch (error) {
-            console.error('Error al iniciar sesión:', error);
-            setLoginError('Error al iniciar sesión');
+            console.error('Error al mandar la request:', error);
+            // Mostrar mensaje de error como alerta
+            window.alert('Error de Nombre y/o Contraseña');
         }
+    };
+
+    // Función para alternar la visibilidad de la contraseña
+    const toggleShowPassword = () => {
+        setShowPassword(!showPassword);
+    };
+
+    // Función para manejar la redirección al registro
+    const handleRegisterRedirect = () => {
+        navigate('/register'); // Redirige a la página de registro
     };
 
     return (
@@ -48,9 +61,9 @@ const Login = () => {
                         <form onSubmit={handleLogin}>
                             <input
                                 type="text"
-                                placeholder="Nombre de usuario"
-                                value={first_name}
-                                onChange={(e) => setfirst_name(e.target.value)}
+                                placeholder="Correo electrónico"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                             />
                             <div className="pass-input-div">
                                 <input
@@ -59,11 +72,20 @@ const Login = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
-                                {/* Opcional: Agrega íconos para mostrar/ocultar contraseña */}
                             </div>
-
+                            <div className="checkbox-container">
+                                <input
+                                    type="checkbox"
+                                    id="show-password-checkbox"
+                                    checked={showPassword}
+                                    onChange={toggleShowPassword}
+                                />
+                                <label htmlFor="show-password-checkbox">
+                                    Mostrar contraseña
+                                </label>
+                            </div>
                             <div className="login-center-options">
-                                <div className="remember-div">
+                                <div className="checkbox-container">
                                     <input type="checkbox" id="remember-checkbox" />
                                     <label htmlFor="remember-checkbox">
                                         No cerrar sesión
@@ -77,11 +99,14 @@ const Login = () => {
                                 <button type="submit">Iniciar sesión</button>
                             </div>
                         </form>
-                        {loginError && <p className="error-message">{loginError}</p>}
-                        {successMessage && <p className="success-message">{successMessage}</p>}
+
+                        {/* Mostrar mensaje de éxito */}
+                        {message.type === 'success' && (
+                            <p className="success-message">{message.text}</p>
+                        )}
                     </div>
                     <p className="login-bottom-p">
-                        ¿No tienes cuenta? <a href="#">Regístrate ahora</a>
+                        ¿No tienes cuenta? <a href="#" onClick={handleRegisterRedirect}>Regístrate ahora</a>
                     </p>
                 </div>
             </div>

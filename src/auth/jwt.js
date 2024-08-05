@@ -1,11 +1,11 @@
 import jwt from 'jsonwebtoken'
 
-const secretKey = "ClaveSecret"
+const secretKey = "Ryurin Hanpatsu Tusagi no ryusei"
 
 export const createToken = (user) => {
     const payload = {
-        id: user[0].id,
-        username: user[0].username
+        id: user.id,
+        username: user.first_username
     };
      
 

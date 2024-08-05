@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from './header';
-import Card from './card';
-import EmergencyButton from './Emergencybutton';
+import Card from './card.jsx';
+import EmergencyButton from './Emergencybutton.jsx';
 import './home.css';
 
 function Home() {
@@ -23,7 +23,7 @@ function Home() {
           />
           <Card 
             title="Enseñanza"
-            description="Aprende todo sobre el español."
+            description="Aprende todo sobre el español de una forma creativa e inclusiva."
             buttonText="Aprender ahora"
             link="#"
           />

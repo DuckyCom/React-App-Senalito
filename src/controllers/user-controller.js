@@ -6,53 +6,46 @@ const userService = new UserService();
 
 /* PUNTO 6: Autenticacion de Usuarios */
 router.post("/login", async (req, res) => {
-    const { first_name, password } = req.body;
-    if (first_name && password) {
-        try {
-            const token = await userService.verificacionUsuario(first_name, password);
-            if (token) {
-                return res.status(200).send({
-                    success: true,
-                    message: "User Found",
-                    token: token
-                });
-            } else {
-                return res.status(401).send({
-                    success: false,
-                    message: "username or password invalid",
-                    token: ""
-                });
-            }
-        } catch (error) {
-            console.error("Error en login:", error);
-            return res.status(500).send({
-                success: false,
-                message: "Internal server error"
-            });
+    try {
+        const { first_name, password } = req.body;
+        const result = await userService.verificacionUsuario(first_name, password);
+        console.log(result, "Tene un buen dia ;)")
+
+        if (result) {
+            const { user, token } = result;  // Desestructura el objeto para obtener el usuario y el token
+            res.cookie('token', token, { httpOnly: true, maxAge: 3600000 }); // Cookie de una hora
+            res.cookie('userId', user.id, { httpOnly: true, maxAge: 3600000 });
+            res.json({ success: true });
+        } else {
+            res.status(401).json({ success: false, message: 'Credenciales inválidas' });
         }
-    } else {
-        return res.status(400).send({
-            success: false,
-            message: "username and password are required"
-        });
+    } catch (error) {
+        console.error("Error en login:", error);
+        res.status(500).json({ success: false, message: 'Error del servidor' });
     }
 });
 
 
-// MENSAJE PARA EL PROFE: HOLA, SOY NOAH, TE QUERIA DECIR QUE HAY UN BUG/ERROR CON EL CREAR QUE TENES QUE TOCAR "SEND" 3 VECES PARA QUE TE TOME EL ID=3 (ya que hay ya existentes 2 users anteriores)
 router.post("/register", async (req, res) => {
-    const { first_name, last_name, username, password } = req.body;
-    const userService = new UserService();
-    const crearUsuario = verificadorDeRegistro(first_name, last_name, first_name, password);
+    const { first_name, username, email, password } = req.body;
+    console.log(req.body, "ESTO ESTA PASANDO EN USER-CONTROLLER (sabias que el gris es considerado un color 'sin color'? Que loco")
+    const crearUsuario = verificadorDeRegistro(first_name, username, email, password);
+    console.log(crearUsuario)
     if(crearUsuario === true){
-        if(await userService.crearUsuario(first_name, last_name, username, password)){
-            return res.status(201).send({
-                id: 0,
-                first_name: first_name,
-                last_name: last_name,
-                username: username,
-                message: 'User registered successfully',
-            });
+        let idUser;
+        idUser = await userService.crearUsuario(first_name, username, email, password)
+        if(idUser != NaN){
+            res.json({success: true});
+            //esto es mas que nada para postman
+
+            // return res.status(201).send({
+            //     id: idUser,
+            //     first_name: first_name,
+            //     username: username,
+            //     email: email,
+            //     message: 'User registered successfully',
+            // });
+            
         } else {
             return res.status(400).send("first_name ya existente");
         }    
@@ -61,12 +54,12 @@ router.post("/register", async (req, res) => {
     }
 });
 
-const verificadorDeRegistro = (first_name, last_name, username, password) => {
+const verificadorDeRegistro = (first_name, username, email, password) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if(!first_name || !last_name){
+    if(!first_name || !username){
         return "El nombre y apellido son obligatorios";
     }
-    else if(!regex.test(username)){
+    else if(!regex.test(email)){
         return "El formato de correo electrónico no es válido";
     }
     else if(password.length < 3){

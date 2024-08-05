@@ -14,7 +14,6 @@ body {
     align-items: center;
     padding-left: 20px;
     padding-top:5px;
-    background-color: #1C1C1C;
   }
   
   .profile-img {
@@ -93,5 +92,28 @@ body {
     color: #1C1C1C;
     cursor: pointer;
     border-radius: 4px;
+  }
+  
+  .header {
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+  }
+  
+  .profile-img {
+    margin-right: 5px;
+  }
+  
+  .header div {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .juancito {
+    margin: 0;
+  }
+  
+  .notification-icon {
+    margin-left: auto;
   }
   

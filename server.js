@@ -4,8 +4,8 @@ import UserController from "./src/controllers/user-controller.js";
 
 const app = express(); // Inicia la API REST
 const corsOptions = {
-  origin: "http://localhost:3000", // Cambia esto al origen de tu front end
-  methods: ["GET", "POST"], // Métodos permitidos
+  origin: "http://localhost:3000",
+  methods: ["GET", "POST"],
   allowedHeaders: ["Content-Type", "Authorization"], // Encabezados permitidos
 };
 app.use(cors(corsOptions)); // Usa el middleware cors con opciones
