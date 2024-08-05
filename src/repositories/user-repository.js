@@ -6,10 +6,10 @@ const client = new pg.Client(config);
 client.connect();
 
 export class UserRepository {
-    async verificacionUsuario(first_name, password) {
+    async verificacionUsuario(email, password) {
         try {
             const query = "SELECT * FROM users WHERE email = $1 AND password = $2";
-            const values = [first_name, password];
+            const values = [email, password];
             const respuesta = await client.query(query, values);
             console.log(respuesta.rows[0])
             if (respuesta.rows.length > 0) {
@@ -26,16 +26,16 @@ export class UserRepository {
     }
 
 
-    async crearUsuarioRep(first_name, username, email, password) {
+    async crearUsuarioRep(first_name, phone_number, email, password) {
         try {
-            const query = "INSERT INTO users (first_name, username, email, password) VALUES ($1, $2, $3, $4) RETURNING id";
-            const values = [first_name, username, email, password];
+            const query = "INSERT INTO users (first_name, phone_number, email, password) VALUES ($1, $2, $3, $4) RETURNING id";
+            const values = [first_name, phone_number, email, password];
             const respuesta = await client.query(query, values);
-            // console.log(respuesta.rows[0], "ESTO ESTA PASANDO EN USER-REPOSITORY.js")
             return respuesta.rows[0].id;
         } catch (error) {
             console.error(error);
             throw error;
         }
     }
+    
 }

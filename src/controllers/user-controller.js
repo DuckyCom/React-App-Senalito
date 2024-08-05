@@ -7,8 +7,8 @@ const userService = new UserService();
 /* PUNTO 6: Autenticacion de Usuarios */
 router.post("/login", async (req, res) => {
     try {
-        const { first_name, password } = req.body;
-        const result = await userService.verificacionUsuario(first_name, password);
+        const { email, password } = req.body;
+        const result = await userService.verificacionUsuario(email, password);
         console.log(result, "Tene un buen dia ;)")
 
         if (result) {
@@ -27,37 +27,31 @@ router.post("/login", async (req, res) => {
 
 
 router.post("/register", async (req, res) => {
-    const { first_name, username, email, password } = req.body;
+    const { first_name, phone_number, email, password } = req.body;
     console.log(req.body, "ESTO ESTA PASANDO EN USER-CONTROLLER (sabias que el gris es considerado un color 'sin color'? Que loco")
-    const crearUsuario = verificadorDeRegistro(first_name, username, email, password);
+    const crearUsuario = verificadorDeRegistro(first_name, phone_number, email, password);
     console.log(crearUsuario)
     if(crearUsuario === true){
         let idUser;
-        idUser = await userService.crearUsuario(first_name, username, email, password)
+        idUser = await userService.crearUsuario(first_name, phone_number, email, password)
         if(idUser != NaN){
             res.json({success: true});
-            //esto es mas que nada para postman
-
-            // return res.status(201).send({
-            //     id: idUser,
-            //     first_name: first_name,
-            //     username: username,
-            //     email: email,
-            //     message: 'User registered successfully',
-            // });
-            
         } else {
-            return res.status(400).send("first_name ya existente");
+            return res.status(400).send("Usuario con datos ya existentes o datos incorrectos");
         }    
     } else {
         return res.status(400).send(crearUsuario);
     }
 });
 
-const verificadorDeRegistro = (first_name, username, email, password) => {
+const verificadorDeRegistro = (first_name, phone_number, email, password) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if(!first_name || !username){
-        return "El nombre y apellido son obligatorios";
+    const phoneRegex = /^[0-9]{10}$/; // Ajusta según el formato deseado
+    if(!first_name || !phone_number){
+        return "El nombre y el número de teléfono son obligatorios";
+    }
+    else if(!phoneRegex.test(phone_number)){
+        return "El número de teléfono no es válido";
     }
     else if(!regex.test(email)){
         return "El formato de correo electrónico no es válido";
@@ -69,6 +63,7 @@ const verificadorDeRegistro = (first_name, username, email, password) => {
         return true;
     }
 }
+
 
 
 export default router;

@@ -3,12 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Logo from "../img/logo.png";
 import Flecha from "../img/Shape.png";
-// import GoogleSvg from "../img/icons8-google.svg";
-import "../login/login.css"; // Asegúrate de tener un archivo CSS para estilizar el registro
+import "../login/login.css";
 
 const Register = () => {
   const [first_name, setFirstName] = useState('');
-  const [username, setUsername] = useState('');
+  const [phone_number, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -27,7 +26,7 @@ const Register = () => {
     try {
       const response = await axios.post('http://localhost:7777/api/user/register', {
         first_name,
-        username,
+        phone_number,
         email,
         password
       });
@@ -72,9 +71,9 @@ const Register = () => {
               />
               <input
                 type="text"
-                placeholder="Nombre De Usuario"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Número de Teléfono ej: xxxxxxxxxx"
+                value={phone_number}
+                onChange={(e) => setPhoneNumber(e.target.value)}
               />
               <input
                 type="email"
