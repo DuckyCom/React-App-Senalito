@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Cookies from 'js-cookie'
 import { useNavigate } from 'react-router-dom'; // Usar react-router para redireccionar
 import axios from 'axios';
 import Logo from "../img/logo.png";
@@ -21,20 +22,21 @@ const Login = () => {
 
             if (response.status) {
                 setMessage({ text: 'Inicio de sesión exitoso', type: 'success' });
+                Cookies.set('token', "TESTEO"); // Cookie de una hora
+                Cookies.set('userId', "HARDCODEO")
+                Cookies.set('user', "HARDCODEO")
                 setTimeout(() => {
                     setMessage({ text: 'Iniciando...', type: 'success' });
                     setTimeout(() => {
-                        navigate('/home');
+                        navigate('/home'); // Redirige a yacasilog
                     }, 2000);
                 }, 2000); // 2000 milisegundos = 2 segundos
             } else {
-                // Mostrar mensaje de error como alerta
                 window.alert('Credenciales inválidas');
             }
         } catch (error) {
             console.error('Error al mandar la request:', error);
-            // Mostrar mensaje de error como alerta
-            window.alert('Error de Nombre y/o Contraseña');
+            window.alert('Error de correo y/o Contraseña');
         }
     };
 
@@ -104,6 +106,7 @@ const Login = () => {
                         {message.type === 'success' && (
                             <p className="success-message">{message.text}</p>
                         )}
+
                     </div>
                     <p className="login-bottom-p">
                         ¿No tienes cuenta? <a href="#" onClick={handleRegisterRedirect}>Regístrate ahora</a>

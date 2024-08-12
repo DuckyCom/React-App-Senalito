@@ -1,0 +1,39 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.custom-navbar {
+    display: flex;
+    justify-content: space-around;
+    background-color: #1c1c1c;
+    padding: 10px 0;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #bfbfbf;
+}
+
+.nav-item a {
+    text-decoration: none;
+    color: inherit; /* Mantiene el color del texto */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.nav-item img {
+    width: 25px;
+    height: 25px;
+    margin-bottom: 5px;
+}
+
+.nav-text {
+    font-size: 14px;
+}
+
+.nav-text.active {
+    color: #6d4bf4; /* Color azul para la opción activa */
+}

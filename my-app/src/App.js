@@ -6,7 +6,7 @@ import Registro from "./components/registro/registro"
 import Home from "./components/home/home"
 import CasiReg from './components/yacasireg/yacasireg'
 import Emergencia from './components/emergencia/emergencia'
-
+import Interprete from './components/interpretacion/interpretacion'
 
 function App() {
   return (
@@ -15,6 +15,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Registro />} />
+        <Route path="/interprete" element={<Interprete />} />
       </Routes>
     </Router>
   );

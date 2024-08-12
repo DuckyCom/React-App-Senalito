@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import './yacasir.css';
 
 const VerificationSuccess = () => {
   const [animationComplete, setAnimationComplete] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -12,6 +15,10 @@ const VerificationSuccess = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  const handleContinue = () => {
+    navigate('/home'); // Redirige a la pantalla principal
+  };
+
   return (
     <div className="verification-container">
       <div className={`verification-icon ${animationComplete ? 'stop-animation' : ''}`}>
@@ -20,9 +27,9 @@ const VerificationSuccess = () => {
           <path d="M30 50 L45 65 L70 35" stroke="green" strokeWidth="5" fill="none" />
         </svg>
       </div>
-      <h2></h2>
+      <h2>Bienvenido!</h2>
       <p>Queremos hacerte algunas preguntas para conocerte mejor...</p>
-      <button className="continue-button">Continuar</button>
+      <button className="continue-button" onClick={handleContinue}>Continuar</button>
     </div>
   );
 };
