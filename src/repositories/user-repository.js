@@ -8,6 +8,7 @@ client.connect();
 export class UserRepository {
     async verificacionUsuario(email, password) {
         try {
+            console.log("Email ", email, "\npassword ", password)
             const query = "SELECT * FROM users WHERE email = $1 AND password = $2";
             const values = [email, password];
             const respuesta = await client.query(query, values);

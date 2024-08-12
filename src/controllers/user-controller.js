@@ -8,13 +8,12 @@ const userService = new UserService();
 router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
+        console.log("LA PASSWORD ", password)
         const result = await userService.verificacionUsuario(email, password);
         console.log(result, "Tene un buen dia ;)")
 
         if (result) {
             const { user, token } = result;  // Desestructura el objeto para obtener el usuario y el token
-            res.cookie('token', token, { httpOnly: true, maxAge: 3600000 }); // Cookie de una hora
-            res.cookie('userId', user.id, { httpOnly: true, maxAge: 3600000 });
             res.json({ success: true });
         } else {
             res.status(401).json({ success: false, message: 'Credenciales inválidas' });

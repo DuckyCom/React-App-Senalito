@@ -10,6 +10,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions)); // Usa el middleware cors con opciones
 app.use(express.json());
+
 const port = 7777;
 app.use("/api/user", UserController);
 
