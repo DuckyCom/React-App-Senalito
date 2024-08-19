@@ -12,7 +12,7 @@ function Home() {
     <div className="Home">
       <Header />
       <main>
-      <Link to="/home">
+      <Link to="/interprete">
         <section className="interpretation">
           <h2>Interpretación en tiempo real</h2>
           <p>Comunícate de manera efectiva, rompiendo las barreras del lenguaje.</p>

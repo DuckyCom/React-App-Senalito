@@ -14,12 +14,14 @@ const InterpretacionPage = () => {
     useEffect(() => {
         loadFromCookies();
     }, []);
+    const modelURL = "/modelo/model.json";
+    const metadataURL = "/modelo/model.json";
 
     const init = async () => {
-        const modelURL = "./modelo/model.json";
-        const metadataURL = "./modelo/metadata.json";
+
 
         const model = await tmImage.load(modelURL, metadataURL);
+        console.log("Model loaded successfully.");
         setModel(model);
         setMaxPredictions(model.getTotalClasses());
 
@@ -37,9 +39,19 @@ const InterpretacionPage = () => {
             document.getElementById("webcam-container").classList.add('border-red');
             predict();
         }, 1000);
+       setInterval(() => {
+            document.getElementById("webcam-container").classList.remove('border-green');
+            document.getElementById("webcam-container").classList.add('border-red');
+            predict();
+        }, 1000);
     };
 
     const predict = async () => {
+        if (!model || !webcam) {
+            console.error("Model or webcam is not initialized");
+            return;
+        }
+        
         const prediction = await model.predict(webcam.canvas);
         let highestPrediction = { className: '', probability: 0 };
 
@@ -152,7 +164,8 @@ const InterpretacionPage = () => {
                             <img src="Union.png" alt="Union" className="button-img" />
                         </button>
                         <button className="borrar-button" onClick={clearAllPredictions}>
-                            <img src="Borrar.png" alt="Borrar" className="button-img" />
+                            {/* se mueven las imagenes a public */}
+                            <img src="/Borrar.png" alt="Borrar" className="button-img" />
                         </button>
                     </div>
                 </div>
