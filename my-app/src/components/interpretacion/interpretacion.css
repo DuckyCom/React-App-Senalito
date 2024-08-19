@@ -31,7 +31,6 @@ body {
 
 .title {
     display: flex;
-    align-items: center;
     justify-content: flex-start; /* Alinear al inicio */
     margin-bottom: 10px;
 }
@@ -45,8 +44,7 @@ body {
 
 .interpretacion {
     margin: 0;
-    margin-top: 100px;
-    margin-left: 5px; /* Ajustar margen izquierdo */
+    margin-left: 20x; /* Ajustar margen izquierdo */
     font-size: 20px; /* Reducir tamaño de fuente */
 }
 
