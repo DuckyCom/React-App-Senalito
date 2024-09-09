@@ -11,34 +11,46 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [message, setMessage] = useState({ text: '', type: '' });
     const navigate = useNavigate();
+    let response = ''
+const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+        // Puedes añadir más campos en el objeto de datos
+        response = await axios.post('http://localhost:7777/api/user/login', {
+            email,
+            password,
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post('http://localhost:7777/api/user/login', {
-                email,
-                password
-            });
+        });
 
-            if (response.status) {
-                setMessage({ text: 'Inicio de sesión exitoso', type: 'success' });
-                Cookies.set('token', "TESTEO"); // Cookie de una hora
-                Cookies.set('userId', "HARDCODEO")
-                Cookies.set('user', "HARDCODEO")
-                setTimeout(() => {
-                    setMessage({ text: 'Iniciando...', type: 'success' });
-                    setTimeout(() => {
-                        navigate('/home'); // Redirige a yacasilog
-                    }, 2000);
-                }, 2000); // 2000 milisegundos = 2 segundos
-            } else {
-                window.alert('Credenciales inválidas');
-            }
-        } catch (error) {
-            console.error('Error al mandar la request:', error);
-            window.alert('Error de correo y/o Contraseña');
+        // Convertir la cadena JSON en un objeto
+        
+        const {user, token} = JSON.parse(response.data.result);
+  
+        // Extraer los valores, incluyendo los adicionales
+        const extractedEmail = user.email;
+        const extractedPassword = user.password;
+
+        console.log("Email extraído:", extractedEmail);
+        console.log("Password extraído:", extractedPassword);
+
+        if (response.data.success) {
+            setMessage({ text: 'Inicio de sesión exitoso', type: 'success' });
+            Cookies.set('token', token);
+            Cookies.set('userId', "HARDCODEO");
+            Cookies.set('user', "");
+            navigate('/home');
         }
-    };
+    } catch (error) {
+        console.log(error.response.status);
+        if (error.response.status === 401) {
+            setMessage({ text: 'Credenciales inválidas', type: 'success' });
+        } else {
+            setMessage({ text: 'Error del servidor, inténtelo de nuevo más tarde', type: 'success' });
+        }
+        console.error('Error en login:', error);
+    }
+};
+
 
     // Función para alternar la visibilidad de la contraseña
     const toggleShowPassword = () => {

@@ -15,6 +15,7 @@ export class UserRepository {
             console.log(respuesta.rows[0])
             if (respuesta.rows.length > 0) {
                 const user = respuesta.rows[0];
+                
                 const token = createToken(respuesta.rows[0]); 
                 return {user, token};
             } else {

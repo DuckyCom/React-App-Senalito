@@ -19,7 +19,7 @@ const Register = () => {
     e.preventDefault();
     
     if (!acceptTerms) {
-      window.alert('Debes aceptar los Términos y Condiciones para registrarte.');
+      setMessage({ text: 'Debes aceptar los Términos y Condiciones para registrarte.', type: 'error' });
       return;
     }
 
@@ -71,7 +71,7 @@ const Register = () => {
               />
               <input
                 type="text"
-                placeholder="Número de Teléfono ej: xxxxxxxxxx"
+                placeholder="Número de Teléfono ej: +54 11 1234 5678"
                 value={phone_number}
                 onChange={(e) => setPhoneNumber(e.target.value)}
               />
