@@ -11,33 +11,38 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [message, setMessage] = useState({ text: '', type: '' });
     const navigate = useNavigate();
-    let response = ''
-const handleLogin = async (e) => {
+    
+    const handleLogin = async (e) => {
     e.preventDefault();
     try {
-        // Puedes añadir más campos en el objeto de datos
-        response = await axios.post('http://localhost:7777/api/user/login', {
+
+        const response = await axios.post('http://localhost:7777/api/user/login', {
             email,
             password,
 
         });
 
-        // Convertir la cadena JSON en un objeto
-        
-        const {user, token} = JSON.parse(response.data.result);
+        console.log(response.data.result) //esto se consige en el res.json del user-controller
+        const {user, token} = response.data.result;
   
+        //haria falta encriptar la contraseña, pero desde el backend y que ya llegue aca cifrada
         // Extraer los valores, incluyendo los adicionales
         const extractedEmail = user.email;
         const extractedPassword = user.password;
+        const extractedToken = token; //esto se usará mas adelante
+        const extractedName = user.first_name
+        const extractedID = user.id
 
-        console.log("Email extraído:", extractedEmail);
-        console.log("Password extraído:", extractedPassword);
+
+        // console.log("Email extraído:", extractedEmail);
+        // console.log("Password extraído:", extractedPassword);
 
         if (response.data.success) {
             setMessage({ text: 'Inicio de sesión exitoso', type: 'success' });
+            Cookies.set('email', extractedEmail)
             Cookies.set('token', token);
-            Cookies.set('userId', "HARDCODEO");
-            Cookies.set('user', "");
+            Cookies.set('userId', extractedID);
+            Cookies.set('user', extractedName);
             navigate('/home');
         }
     } catch (error) {
