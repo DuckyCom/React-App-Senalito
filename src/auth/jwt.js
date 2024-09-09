@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 
-const secretKey = "Ryurin Hanpatsu Tusagi no ryusei"
+export const secretKey = "Ryurin Hanpatsu Tusagi no ryusei"
 
 export const createToken = (user) => {
     const payload = {

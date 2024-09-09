@@ -9,12 +9,13 @@ router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
         console.log("LA PASSWORD ", password);
-        const result = await userService.verificacionUsuario(email, password);
+        const result = await userService.verificarUsuario(email, password);
         console.log(result, "Tene un buen dia ;)");
 
         if (result) {
-            const { user, token } = result  // Desestructura el objeto para obtener el usuario y el token
-            console.log("ME-WOW IS THAT THE LATEST FELINOR FASHION?",user)
+            const user = result.usuario
+            const token = result.token  // Desestructura el objeto para obtener el usuario y el token
+            console.log("ME-WOW IS THAT THE LATEST FELINOR FASHION?", user)
             res.json({ success: true, result: { user, token } });
         } else {
             res.status(401).json({ success: false, message: 'Credenciales inválidas' });

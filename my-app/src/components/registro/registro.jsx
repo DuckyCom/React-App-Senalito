@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import InputMask from 'react-input-mask'; // Importa InputMask
 import Logo from "../img/logo.png";
 import Flecha from "../img/Shape.png";
 import "../login/login.css";
@@ -69,12 +70,14 @@ const Register = () => {
                 value={first_name}
                 onChange={(e) => setFirstName(e.target.value)}
               />
-              <input
-                type="text"
-                placeholder="Número de Teléfono ej: +54 11 1234 5678"
+              <InputMask
+                mask="+54 11 9999-9999"
                 value={phone_number}
                 onChange={(e) => setPhoneNumber(e.target.value)}
-              />
+                placeholder="+54 11 9999-9999"
+              >
+                {(inputProps) => <input {...inputProps} />}
+              </InputMask>
               <input
                 type="email"
                 placeholder="Correo electrónico"

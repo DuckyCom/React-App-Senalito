@@ -1,36 +1,35 @@
-import pg from "pg";
-import { config } from "./db.js";
-import { createToken } from "../auth/jwt.js";
+import pg from 'pg';
+import { config } from './db.js';
+import bcrypt from 'bcryptjs';
 
 const client = new pg.Client(config);
 client.connect();
 
 export class UserRepository {
-    async verificacionUsuario(email, password) {
+    async buscarUsuarioPorEmail(email) {
         try {
-            console.log("Email ", email, "\npassword ", password)
-            const query = "SELECT * FROM users WHERE email = $1 AND password = $2";
-            const values = [email, password];
+            const query = 'SELECT id, first_name, phone_number, email, password FROM users WHERE email = $1';
+            const values = [email];
             const respuesta = await client.query(query, values);
-            console.log(respuesta.rows[0])
+
             if (respuesta.rows.length > 0) {
-                const user = respuesta.rows[0];
-                
-                const token = createToken(respuesta.rows[0]); 
-                return {user, token};
+                return respuesta.rows[0];
             } else {
-                return false;
+                return null; // Usuario no encontrado
             }
         } catch (error) {
-            console.error("Error en verificacionUsuario:", error);
+            console.error(error);
             throw error;
         }
     }
 
+    async verificarPassword(storedPasswordHash, password) {
+        return bcrypt.compare(password, storedPasswordHash);
+    }
 
     async crearUsuarioRep(first_name, phone_number, email, password) {
         try {
-            const query = "INSERT INTO users (first_name, phone_number, email, password) VALUES ($1, $2, $3, $4) RETURNING id";
+            const query = 'INSERT INTO users (first_name, phone_number, email, password) VALUES ($1, $2, $3, $4) RETURNING id';
             const values = [first_name, phone_number, email, password];
             const respuesta = await client.query(query, values);
             return respuesta.rows[0].id;
@@ -39,5 +38,4 @@ export class UserRepository {
             throw error;
         }
     }
-    
 }
