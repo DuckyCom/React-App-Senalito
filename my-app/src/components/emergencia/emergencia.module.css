@@ -35,3 +35,27 @@
   font-size:12px;
 
 }
+
+/* From Uiverse.io by Mhyar-nsi */ 
+button {
+  margin-left: 80px;
+  background: radial-gradient(circle, rgba(92,225,230,1) 0%, rgba(85,75,241,1) 100%);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  border-radius: 100%;
+  width: 200px;
+  height: 200px;
+  transition: 0.3s;
+  box-shadow: 0 0 0 6px #3b83f65f;
+}
+
+button:hover {
+  background-color: #3b82f6;
+  box-shadow: 0 0 0 10px rgb(92,225,230);
+  color: #fff;
+}
+
+.nav{
+  margin-top:200px;
+}
