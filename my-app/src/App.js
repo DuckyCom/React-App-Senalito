@@ -7,7 +7,7 @@ import Home from "./components/home/home"
 import CasiReg from './components/yacasireg/yacasireg'
 import Emergencia from './components/emergencia/emergencia'
 import Interprete from './components/interpretacion/interpretacion'
-
+import NotFound from './components/notfound/notfound'
 
 function App() {
   return (
@@ -18,6 +18,7 @@ function App() {
         <Route path="/register" element={<Registro />} />
         <Route path="/interprete" element={<Interprete />} />
         <Route path="/emergencia" element={<Emergencia />} />
+        <Route exact path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );

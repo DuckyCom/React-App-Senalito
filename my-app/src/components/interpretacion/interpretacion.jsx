@@ -13,7 +13,7 @@ import BorrarTodo from './imgs/BorrarTodo.png';
 
 const InterpretacionPage = () => {
   let model, webcam, maxPredictions;
-  const threshold = 0.85;
+  const threshold = 0.85;           
   const detectedLetters = new Set();
   const [concatenatedText, setConcatenatedText] = useState('');
   const navigate = useNavigate(); // Hook para redirección

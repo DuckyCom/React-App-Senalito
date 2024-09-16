@@ -38,7 +38,7 @@ const EmergenciaScreen = () => {
       <h4 className={styles.texto2}>de emergencia más </h4>
       <h4 className={styles.texto2}>cercano.</h4>
       </div>
-      <button className={styles.boton}>SOS<br/> Presionar por 3 seg.</button>
+      <button className={styles.botonn}>SOS<br/> Presionar por 3 seg.</button>
    <div className={styles.nav}>
     <Navbar/>
     </div>
