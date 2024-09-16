@@ -1,0 +1,27 @@
+.todo {
+  /* Estilos del contenedor principal si es necesario */
+}
+
+.header {
+  padding-left: 15px;
+  padding-top: 60px;
+  display: flex;
+}
+
+.direccion {
+  margin-left: 15px;
+  font-size: 18px; /* Cambia el tamaño de fuente según lo desees */
+}
+
+.dire {
+  font-size: 20px; /* Puedes ajustar el tamaño de la fuente aquí */
+}
+
+.location {
+  height: 14px;
+  width: 14px;
+}
+
+.arrow-left {
+  /* Estilos específicos para la flecha si los necesitas */
+}

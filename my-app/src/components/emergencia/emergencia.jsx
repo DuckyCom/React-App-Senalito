@@ -1,36 +1,37 @@
-// src/components/EmergencyScreen.js
 import React from 'react';
-import './emergencia.css';
+import styles from './emergencia.module.css'; // Importar CSS como objeto
+import ImgEm from '../img/Emergencia_image.png'; 
+import Location from '../img/Location_image.png'; 
+import FlechaA from '../img/arrow-left.png';
+import Navbar from '../navbar/navbar.jsx';
+import { useNavigate } from 'react-router-dom';
 
-const EmergencyScreen = () => {
+const EmergenciaScreen = () => {
+  const navigate = useNavigate();
   return (
-    <div className="emergency-container">
-      <div className="header">
-        <button className="back-button">←</button>
-        <span className="location">Ubicación actual<br />Av. 9 de Julio, CABA</span>
-        <button className="settings-button">Configuración</button>
+    <div className={styles.todo}> 
+      <div className={styles.header}>
+        <h2> 
+          <img
+            src={FlechaA}
+            alt="atras"
+            className={styles['arrow-left']}
+            onClick={() => navigate('/home')}
+          /> 
+          Emergencia
+        </h2>
       </div>
-      <div className="content">
-        <h1>¿Estás en una emergencia?</h1>
-        <p>
-          Presiona el botón de SOS por 3 segundos. Se avisará a tus contactos y al centro de emergencia más cercano.
-        </p>
-        <div className="image-container">
-          <img src="your-image-path.png" alt="Emergency illustration" />
-        </div>
-        <div className="sos-button-container">
-          <button className="sos-button">SOS<br /><span>Presionar por 3 segundos</span></button>
-        </div>
-      </div>
-      <div className="footer">
-        <button>Home</button>
-        <button>Interprete</button>
-        <button>Enseñanza</button>
-        <button>Emergencia</button>
-        <button>Perfil</button>
+      <div className={styles.direccion}> 
+        <h2 className={styles.Ubi}>
+          <img src={Location} alt="Location" className={styles.location}/> 
+          Ubicación actual
+        </h2>
+        <h2 className={styles.dire}> {/* Cambié `Dire` por `dire` para que coincida con el CSS */}
+          Av. 9 de Julio 8319, CABA
+        </h2>
       </div>
     </div>
   );
 };
 
-export default EmergencyScreen;
+export default EmergenciaScreen;
