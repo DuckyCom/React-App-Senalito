@@ -10,18 +10,28 @@
 
 .direccion {
   margin-left: 15px;
-  font-size: 18px; /* Cambia el tamaño de fuente según lo desees */
 }
 
 .dire {
-  font-size: 20px; /* Puedes ajustar el tamaño de la fuente aquí */
+  font-size:14px;
+
 }
 
 .location {
   height: 14px;
   width: 14px;
+  font-size:12px;
+
 }
 
 .arrow-left {
   /* Estilos específicos para la flecha si los necesitas */
+}
+.textoo{
+  margin-left: 15px;
+}
+.texto2{
+  margin-left: 15px;
+  font-size:12px;
+
 }
