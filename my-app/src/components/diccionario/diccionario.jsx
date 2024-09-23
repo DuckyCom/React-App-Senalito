@@ -59,9 +59,9 @@ const Diccionario = () => {
         />
      
       </div>
-
       <Navbar />
-    </div>
+      </div>
+
   );
 };
 

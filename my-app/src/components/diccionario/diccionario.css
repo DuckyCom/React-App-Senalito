@@ -17,3 +17,17 @@
         display: flex;
       }
   }
+  .nav{
+    margin-top:200px;
+  }
+
+  .card-containerP{
+    flex: 1 1 calc(50% - 20px); /* Ancho de cada tarjeta: 50% menos el espacio de gap */
+    box-sizing: border-box;
+  }
+
+  .card-image {
+    width: 140px;
+    height: 140px;
+  }
+  
