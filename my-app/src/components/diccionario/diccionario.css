@@ -1,0 +1,19 @@
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px; /* Espacio entre las tarjetas */
+  }
+  
+  .card-container > div {
+    flex: 1 1 calc(50% - 20px); /* Ancho de cada tarjeta: 50% menos el espacio de gap */
+    box-sizing: border-box;
+  }
+  
+  .header{
+    .header {
+        padding-left: 15px;
+        padding-top: 60px;
+        display: flex;
+      }
+  }

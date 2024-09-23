@@ -24,7 +24,7 @@ function Home() {
             title="Enseñanza"
             description="Aprende lenguaje de señas argentina de la mano de los mejores."
             buttonText="Aprender ahora"
-            link="#"
+            link="/diccionario"
           />
           <Card 
             title="Enseñanza"

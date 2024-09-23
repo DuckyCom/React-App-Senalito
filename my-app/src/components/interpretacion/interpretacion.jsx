@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from 'react-router-dom'; // Importar useNavigate
-import * as tfjs from '@tensorflow/tfjs';
-import * as tmImage from '@teachablemachine/image';
+import { FilesetResolver, GestureRecognizer } from "@mediapipe/tasks-vision";
+import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
+import { HAND_CONNECTIONS } from "@mediapipe/hands";
 import Navbar from '../navbar/navbar';
 import './interpretacion.css';
 import Flechas from './imgs/FlechaCambio.png';
@@ -10,82 +11,111 @@ import FlechaAtras from './imgs/FlechaAtras.png';
 import Borrar from './imgs/Borrar.png';
 import BotonC from './imgs/BotonCamara.png';
 import BorrarTodo from './imgs/BorrarTodo.png';
+import Webcam from "react-webcam";
 
 const InterpretacionPage = () => {
-  let model, webcam, maxPredictions;
-  const threshold = 0.85;           
-  const detectedLetters = new Set();
   const [concatenatedText, setConcatenatedText] = useState('');
+  const [gestureOutput, setGestureOutput] = useState('');
+  const [gestureRecognizer, setGestureRecognizer] = useState(null);
+  const [webcamRunning, setWebcamRunning] = useState(false);
+  const webcamRef = useRef(null);
+  const canvasRef = useRef(null);
+  const detectedLetters = new Set();
   const navigate = useNavigate(); // Hook para redirección
+  const threshold = 0.85;
 
   useEffect(() => {
-    loadFromCookies(); // Cargar el texto almacenado en cookies al iniciar el componente
+    loadFromCookies();
   }, []);
 
-  const classThresholds = {
-    'Yo': 0.80,
-    'O': 0.95,
-    'I': 0.90,
-    'Como': 0.90,
-    'L': 0.40,
-    'T': 0.70,
-    'Estas': 0.90,
-  };
-
-  async function init() {
-    const modelURL = "./modelo/model.json";
-    const metadataURL = "./modelo/metadata.json";
-
-    model = await tmImage.load(modelURL, metadataURL);
-    maxPredictions = model.getTotalClasses();
-
-    const flip = true;
-    webcam = new tmImage.Webcam(324, 185, flip);
-    await webcam.setup();
-    await webcam.play();
-    window.requestAnimationFrame(loop);
-
-    document.getElementById("start-area").style.display = "none";
-    document.getElementById("webcam-container").style.display = 'block';
-    document.getElementById("webcam-container").appendChild(webcam.canvas);
-
-    setInterval(() => {
-      document.getElementById("webcam-container").classList.remove('border-green');
-      document.getElementById("webcam-container").classList.add('border-red');
-      predict();
-    }, 1000);
+  // Cargar GestureRecognizer con el modelo de prueba
+  async function loadGestureRecognizer() {
+    const vision = await FilesetResolver.forVisionTasks(
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+    );
+    const recognizer = await GestureRecognizer.createFromOptions(vision, {
+      baseOptions: {
+        modelAssetPath: "https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task", // Ruta directa del modelo
+      },
+      numHands: 2,
+      runningMode: "VIDEO",
+    });
+    setGestureRecognizer(recognizer);
   }
 
-  async function loop() {
-    webcam.update();
-    window.requestAnimationFrame(loop);
-  }
+  useEffect(() => {
+    loadGestureRecognizer();
+  }, []);
 
-  async function predict() {
-    const prediction = await model.predict(webcam.canvas);
-    let highestPrediction = { className: '', probability: 0 };
+  const predictWebcam = useCallback(() => {
+    if (!gestureRecognizer) return;
 
-    for (let i = 0; i < maxPredictions; i++) {
-      if (prediction[i].probability > highestPrediction.probability) {
-        highestPrediction = prediction[i];
+    const nowInMs = Date.now();
+    const results = gestureRecognizer.recognizeForVideo(
+      webcamRef.current.video,
+      nowInMs
+    );
+
+    const canvasCtx = canvasRef.current.getContext("2d");
+    canvasCtx.save();
+    canvasCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+
+    const videoWidth = webcamRef.current.video.videoWidth;
+    const videoHeight = webcamRef.current.video.videoHeight;
+
+    webcamRef.current.video.width = videoWidth;
+    webcamRef.current.video.height = videoHeight;
+    canvasRef.current.width = videoWidth;
+    canvasRef.current.height = videoHeight;
+
+    // Dibuja los landmarks y conexiones de la mano
+    if (results.landmarks) {
+      for (const landmarks of results.landmarks) {
+        drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
+          color: "#00FF00",
+          lineWidth: 5,
+        });
+        drawLandmarks(canvasCtx, landmarks, { color: "#FF0000", lineWidth: 2 });
       }
     }
 
-    const className = highestPrediction.className;
-    const classThreshold = classThresholds[className] || threshold;
+    // Procesa las predicciones de gestos
+    if (results.gestures.length > 0) {
+      const gestureName = results.gestures[0][0].categoryName;
+      const gestureScore = results.gestures[0][0].score;
 
-    if (highestPrediction.probability >= classThreshold && !detectedLetters.has(className)) {
-      detectedLetters.add(className);
-      setConcatenatedText(prevText => {
-        const newText = `${prevText} ${className}`.trim();
-        saveToCookies(newText);
-        return newText;
-      });
+      if (gestureScore >= threshold && !detectedLetters.has(gestureName)) {
+        detectedLetters.add(gestureName);
+        setConcatenatedText((prevText) => {
+          const newText = `${prevText} ${gestureName}`.trim();
+          saveToCookies(newText);
+          return newText;
+        });
+      }
+      setGestureOutput(gestureName);
+    } else {
+      setGestureOutput("");
     }
 
-    document.getElementById("webcam-container").classList.remove('border-red');
-    document.getElementById("webcam-container").classList.add('border-green');
-  }
+    if (webcamRunning) {
+      requestAnimationFrame(predictWebcam);
+    }
+  }, [gestureRecognizer, webcamRunning]);
+
+  const enableCam = useCallback(() => {
+    if (!gestureRecognizer) {
+      alert("Please wait for gestureRecognizer to load");
+      return;
+    }
+
+    if (webcamRunning) {
+      setWebcamRunning(false);
+      cancelAnimationFrame(predictWebcam);
+    } else {
+      setWebcamRunning(true);
+      requestAnimationFrame(predictWebcam);
+    }
+  }, [gestureRecognizer, webcamRunning, predictWebcam]);
 
   function removeLastPrediction() {
     setConcatenatedText(prevText => {
@@ -139,16 +169,15 @@ const InterpretacionPage = () => {
 
   return (
     <div>
-    
       <div className="container">
         <div className="header">
           <div className="title">
-          <img
-        src={FlechaAtras}
-        alt="atras"
-        className="arrow-left"
-        onClick={() => navigate('/home')} // Redirige a /home al hacer clic
-        />
+            <img
+              src={FlechaAtras}
+              alt="atras"
+              className="arrow-left"
+              onClick={() => navigate('/home')} 
+            />
             <h1 className="interpretacion">Interpretación</h1>
           </div>
           <p className="interpretation-text">Formato de interpretación</p>
@@ -162,12 +191,13 @@ const InterpretacionPage = () => {
             </div>
           </div>
           <div className="buttons">
-            <div id="start-area" className="start-area">
-              <button type="button" onClick={init} className="start-button">
-                <img src={BotonC} alt="Iniciar cámara" className="Boton" />
-              </button>
+            <button type="button" onClick={enableCam} className="start-button">
+              <img src={BotonC} alt="Iniciar cámara" className="Boton" />
+            </button>
+            <div id="webcam-container" className="webcam-container">
+              <Webcam audio={false} ref={webcamRef} className="webcam" />
+              <canvas ref={canvasRef} className="webcam-canvas"></canvas>
             </div>
-            <div id="webcam-container" className="webcam-container" style={{ display: 'none' }}></div>
           </div>
           <div id="label-container" className="label-container">
             <div id="concatenated-text">{concatenatedText}</div>

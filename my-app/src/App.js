@@ -8,6 +8,9 @@ import CasiReg from './components/yacasireg/yacasireg'
 import Emergencia from './components/emergencia/emergencia'
 import Interprete from './components/interpretacion/interpretacion'
 import NotFound from './components/notfound/notfound'
+import Diccionario from './components/diccionario/diccionario'
+import CatFam from './components/diccionario/catfam'
+
 
 function App() {
   return (
@@ -18,6 +21,8 @@ function App() {
         <Route path="/register" element={<Registro />} />
         <Route path="/interprete" element={<Interprete />} />
         <Route path="/emergencia" element={<Emergencia />} />
+        <Route path="/diccionario" element={<Diccionario />} />
+        <Route path="/catfam" element={<CatFam />} />
         <Route exact path="*" element={<NotFound />} />
       </Routes>
     </Router>
