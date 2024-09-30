@@ -16,18 +16,17 @@ import Hija from './img/Hija_img.png';
 const Diccionario = () => {
   const navigate = useNavigate();
   return (
-    <div className="container"> 
+    <><div className="container">
       <div className='header'>
-        <h2> 
+        <h2>
           <img
             src={FlechaA}
             alt="atras"
-            onClick={() => navigate('/home')}
-          /> 
+            onClick={() => navigate('/diccionario')} />
           Familia
         </h2>
       </div>
-      
+
       <div className="card-container">
         <Cardp
           title="Papá"
@@ -35,32 +34,32 @@ const Diccionario = () => {
         />
         <Cardp
           title="Mamá"
-          
+
           image={Mama} // Imagen para "Mamá"
         />
         <Cardp
           title="Abuela"
-         
+
           image={Abuela} // Imagen para "Abuela"
         />
         <Cardp
           title="Abuelo"
-          
+
           image={Abuelo} // Imagen para "Abuelo"
         />
         <Cardp
           title="Hijo"
-          
+
           image={Hijo} // Imagen para "Hijo"
         />
         <Cardp
           title="Hija"
-         
+
           image={Hija} // Imagen para "Hija"
         />
       </div>
-      <Navbar/>
     </div>
+    <Navbar /></>
   );
 };
 

@@ -24,8 +24,8 @@ const Navbar = () => {
           <span className="nav-text">Interprete</span>
         </Link>
       </div>
-      <div className={`nav-item ${location.pathname === '/enseñanza' ? 'active' : ''}`}>
-        <Link to="/enseñanza">
+      <div className={`nav-item ${location.pathname === '/diccionario' ? 'active' : ''}`}>
+        <Link to="/diccionario">
           <img src={enseñanza} alt="enseñanza" className="Enseñanza" />
           <span className="nav-text">Enseñanza</span>
         </Link>

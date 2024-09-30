@@ -10,6 +10,7 @@ import Navbar from '../navbar/navbar.jsx';
 function Home() {
   return (
     <div className="Home">
+
       <Header />
       <main>
       <Link to="/interprete">

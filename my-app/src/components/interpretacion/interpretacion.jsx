@@ -1,56 +1,50 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { useNavigate } from 'react-router-dom'; // Importar useNavigate
+// import "./Detect.css";
 import { FilesetResolver, GestureRecognizer } from "@mediapipe/tasks-vision";
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import { HAND_CONNECTIONS } from "@mediapipe/hands";
-import Navbar from '../navbar/navbar';
-import './interpretacion.css';
-import Flechas from './imgs/FlechaCambio.png';
-import Altavoz from './imgs/Altavoz.png';
-import FlechaAtras from './imgs/FlechaAtras.png';
-import Borrar from './imgs/Borrar.png';
-import BotonC from './imgs/BotonCamara.png';
-import BorrarTodo from './imgs/BorrarTodo.png';
 import Webcam from "react-webcam";
+// import { SignImageData } from "../../data/SignImageData";
+import { useDispatch, useSelector } from "react-redux";
+// import { addSignData } from "../../redux/actions/signdataaction";
+// import DisplayImg from "../../assests/displayGif.gif";
 
-const InterpretacionPage = () => {
-  const [concatenatedText, setConcatenatedText] = useState('');
-  const [gestureOutput, setGestureOutput] = useState('');
-  const [gestureRecognizer, setGestureRecognizer] = useState(null);
-  const [webcamRunning, setWebcamRunning] = useState(false);
+const Detect = () => {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
-  const detectedLetters = new Set();
-  const navigate = useNavigate(); // Hook para redirección
-  const threshold = 0.85;
+  const [webcamRunning, setWebcamRunning] = useState(false);
+  const [gestureOutput, setGestureOutput] = useState("");
+  const [gestureRecognizer, setGestureRecognizer] = useState(null);
+  const [runningMode, setRunningMode] = useState("IMAGE");
 
+  const requestRef = useRef();
+  const [detectedData, setDetectedData] = useState([]);
+  const user = useSelector((state) => state.auth?.user);
+  const { accessToken } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const [currentImage, setCurrentImage] = useState(null);
+  let startTime;
+
+  // Ciclo para actualizar la imagen de práctica
   useEffect(() => {
-    loadFromCookies();
-  }, []);
-
-  // Cargar GestureRecognizer con el modelo de prueba
-  async function loadGestureRecognizer() {
-    const vision = await FilesetResolver.forVisionTasks(
-      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
-    );
-    const recognizer = await GestureRecognizer.createFromOptions(vision, {
-      baseOptions: {
-        modelAssetPath: "https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task", // Ruta directa del modelo
-      },
-      numHands: 2,
-      runningMode: "VIDEO",
-    });
-    setGestureRecognizer(recognizer);
-  }
-
-  useEffect(() => {
-    loadGestureRecognizer();
-  }, []);
+    let intervalId;
+    if (webcamRunning) {
+      intervalId = setInterval(() => {
+        const randomIndex = Math.floor(Math.random() * SignImageData.length);
+        const randomImage = SignImageData[randomIndex];
+        setCurrentImage(randomImage);
+      }, 5000);
+    }
+    return () => clearInterval(intervalId);
+  }, [webcamRunning]);
 
   const predictWebcam = useCallback(() => {
-    if (!gestureRecognizer) return;
+    if (runningMode === "IMAGE") {
+      setRunningMode("VIDEO");
+      gestureRecognizer.setOptions({ runningMode: "VIDEO" });
+    }
 
-    const nowInMs = Date.now();
+    let nowInMs = Date.now();
     const results = gestureRecognizer.recognizeForVideo(
       webcamRef.current.video,
       nowInMs
@@ -58,49 +52,53 @@ const InterpretacionPage = () => {
 
     const canvasCtx = canvasRef.current.getContext("2d");
     canvasCtx.save();
-    canvasCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    canvasCtx.clearRect(
+      0,
+      0,
+      canvasRef.current.width,
+      canvasRef.current.height
+    );
 
     const videoWidth = webcamRef.current.video.videoWidth;
     const videoHeight = webcamRef.current.video.videoHeight;
 
     webcamRef.current.video.width = videoWidth;
     webcamRef.current.video.height = videoHeight;
+
     canvasRef.current.width = videoWidth;
     canvasRef.current.height = videoHeight;
 
-    // Dibuja los landmarks y conexiones de la mano
     if (results.landmarks) {
       for (const landmarks of results.landmarks) {
         drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
           color: "#00FF00",
           lineWidth: 5,
         });
+
         drawLandmarks(canvasCtx, landmarks, { color: "#FF0000", lineWidth: 2 });
       }
     }
 
-    // Procesa las predicciones de gestos
     if (results.gestures.length > 0) {
-      const gestureName = results.gestures[0][0].categoryName;
-      const gestureScore = results.gestures[0][0].score;
+      setDetectedData((prevData) => [
+        ...prevData,
+        { SignDetected: results.gestures[0][0].categoryName },
+      ]);
 
-      if (gestureScore >= threshold && !detectedLetters.has(gestureName)) {
-        detectedLetters.add(gestureName);
-        setConcatenatedText((prevText) => {
-          const newText = `${prevText} ${gestureName}`.trim();
-          saveToCookies(newText);
-          return newText;
-        });
-      }
-      setGestureOutput(gestureName);
+      setGestureOutput(results.gestures[0][0].categoryName);
     } else {
       setGestureOutput("");
     }
 
-    if (webcamRunning) {
-      requestAnimationFrame(predictWebcam);
+    if (webcamRunning === true) {
+      requestRef.current = requestAnimationFrame(predictWebcam);
     }
-  }, [gestureRecognizer, webcamRunning]);
+  }, [webcamRunning, runningMode, gestureRecognizer, setGestureOutput]);
+
+  const animate = useCallback(() => {
+    requestRef.current = requestAnimationFrame(animate);
+    predictWebcam();
+  }, [predictWebcam]);
 
   const enableCam = useCallback(() => {
     if (!gestureRecognizer) {
@@ -108,112 +106,133 @@ const InterpretacionPage = () => {
       return;
     }
 
-    if (webcamRunning) {
+    if (webcamRunning === true) {
       setWebcamRunning(false);
-      cancelAnimationFrame(predictWebcam);
+      cancelAnimationFrame(requestRef.current);
+      setCurrentImage(null);
+
+      const endTime = new Date();
+
+      const timeElapsed = (
+        (endTime.getTime() - startTime.getTime()) /
+        1000
+      ).toFixed(2);
+
+      const nonEmptyData = detectedData.filter(
+        (data) => data.SignDetected !== ""
+      );
+
+      const resultArray = [];
+      let current = nonEmptyData[0];
+
+      for (let i = 1; i < nonEmptyData.length; i++) {
+        if (nonEmptyData[i].SignDetected !== current.SignDetected) {
+          resultArray.push(current);
+          current = nonEmptyData[i];
+        }
+      }
+
+      resultArray.push(current);
+
+      const countMap = new Map();
+      for (const item of resultArray) {
+        const count = countMap.get(item.SignDetected) || 0;
+        countMap.set(item.SignDetected, count + 1);
+      }
+
+      const sortedArray = Array.from(countMap.entries()).sort(
+        (a, b) => b[1] - a[1]
+      );
+
+      const outputArray = sortedArray
+        .slice(0, 5)
+        .map(([sign, count]) => ({ SignDetected: sign, count }));
+
+      const data = {
+        signsPerformed: outputArray,
+        username: user?.name,
+        userId: user?.userId,
+        createdAt: String(endTime),
+        secondsSpent: Number(timeElapsed),
+      };
+
+      dispatch(addSignData(data));
+      setDetectedData([]);
     } else {
       setWebcamRunning(true);
-      requestAnimationFrame(predictWebcam);
+      startTime = new Date();
+      requestRef.current = requestAnimationFrame(animate);
     }
-  }, [gestureRecognizer, webcamRunning, predictWebcam]);
+  }, [
+    webcamRunning,
+    gestureRecognizer,
+    animate,
+    detectedData,
+    user?.name,
+    user?.userId,
+    dispatch,
+  ]);
 
-  function removeLastPrediction() {
-    setConcatenatedText(prevText => {
-      const words = prevText.split(' ').filter(word => word.length > 0);
-      if (words.length > 0) {
-        const lastWord = words.pop();
-        detectedLetters.delete(lastWord);
-        const newText = words.join(' ');
-        saveToCookies(newText);
-        return newText;
-      }
-      return prevText;
-    });
-  }
-
-  function clearAllPredictions() {
-    detectedLetters.clear();
-    setConcatenatedText('');
-    saveToCookies('');
-  }
-
-  function speakText() {
-    const utterance = new SpeechSynthesisUtterance(concatenatedText);
-    utterance.lang = 'es-ES';
-    window.speechSynthesis.speak(utterance);
-  }
-
-  function swapText() {
-    const seña = document.querySelector('.switch-label:nth-of-type(1)');
-    const vozTexto = document.querySelector('.switch-label:nth-of-type(2)');
-    const temp = seña.textContent;
-    seña.textContent = vozTexto.textContent;
-    vozTexto.textContent = temp;
-  }
-
-  function saveToCookies(text) {
-    document.cookie = `concatenatedText=${text}; path=/; max-age=31536000;`;
-  }
-
-  function loadFromCookies() {
-    const cookieArr = document.cookie.split(';');
-    for (let i = 0; i < cookieArr.length; i++) {
-      const cookiePair = cookieArr[i].split('=');
-      if (cookiePair[0].trim() === 'concatenatedText') {
-        const text = cookiePair[1] || '';
-        setConcatenatedText(text);
-        text.split(' ').forEach(word => detectedLetters.add(word));
-      }
+  useEffect(() => {
+    async function loadGestureRecognizer() {
+      const vision = await FilesetResolver.forVisionTasks(
+        "../../../public/modelo/" // Ruta local donde se encuentra tu modelo
+      );
+      const recognizer = await GestureRecognizer.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: "../../../public/modelo/",
+        },
+        numHands: 2,
+        runningMode: runningMode,
+      });
+      setGestureRecognizer(recognizer);
     }
-  }
+    loadGestureRecognizer();
+  }, [runningMode]);
 
   return (
-    <div>
-      <div className="container">
-        <div className="header">
-          <div className="title">
-            <img
-              src={FlechaAtras}
-              alt="atras"
-              className="arrow-left"
-              onClick={() => navigate('/home')} 
-            />
-            <h1 className="interpretacion">Interpretación</h1>
-          </div>
-          <p className="interpretation-text">Formato de interpretación</p>
-          <div className="switch-container">
-            <div className="switch switch1">
-              <h1 className="switch-label">Señas</h1>
+    <>
+      <div className="signlang_detection-container">
+        {accessToken ? (
+          <>
+            <div style={{ position: "relative" }}>
+              <Webcam
+                audio={false}
+                ref={webcamRef}
+                className="signlang_webcam"
+              />
+
+              <canvas ref={canvasRef} className="signlang_canvas" />
+
+              <div className="signlang_data-container">
+                <button onClick={enableCam}>
+                  {webcamRunning ? "Stop" : "Start"}
+                </button>
+
+                <div className="signlang_data">
+                  <p className="gesture_output">{gestureOutput}</p>
+                </div>
+              </div>
             </div>
-            <img src={Flechas} alt="Flechas" className="flecha" onClick={swapText} />
-            <div className="switch switch2">
-              <h1 className="switch-label">Voz y texto</h1>
+
+            <div className="signlang_imagelist-container">
+              <h2 className="gradient__text">Image</h2>
+
+              <div className="signlang_image-div">
+                {currentImage ? (
+                  <img src={currentImage.url} alt={`img ${currentImage.id}`} />
+                ) : (
+                  <h3 className="gradient__text">
+                    Click on the Start Button <br /> to practice with Images
+                  </h3>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="buttons">
-            <button type="button" onClick={enableCam} className="start-button">
-              <img src={BotonC} alt="Iniciar cámara" className="Boton" />
-            </button>
-            <div id="webcam-container" className="webcam-container">
-              <Webcam audio={false} ref={webcamRef} className="webcam" />
-              <canvas ref={canvasRef} className="webcam-canvas"></canvas>
-            </div>
-          </div>
-          <div id="label-container" className="label-container">
-            <div id="concatenated-text">{concatenatedText}</div>
-            <img src={Altavoz} alt="Altavoz" className="altavoz" onClick={speakText} />
-            <button className="union-button" onClick={removeLastPrediction}>
-              <img src={Borrar} alt="Borrar" className="button-img" />
-            </button>
-            <button className="borrar-button" onClick={clearAllPredictions}>
-              <img src={BorrarTodo} alt="Borrar todo" className="button-img" />
-            </button>
-          </div>
-        </div>
+          </>
+        ) : null}
       </div>
-      <Navbar />
-    </div>
+    </>
   );
 };
 
-export default InterpretacionPage;
+export default Detect;
