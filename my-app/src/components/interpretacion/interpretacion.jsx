@@ -1,238 +1,145 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
-// import "./Detect.css";
-import { FilesetResolver, GestureRecognizer } from "@mediapipe/tasks-vision";
-import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
-import { HAND_CONNECTIONS } from "@mediapipe/hands";
-import Webcam from "react-webcam";
-// import { SignImageData } from "../../data/SignImageData";
-import { useDispatch, useSelector } from "react-redux";
-// import { addSignData } from "../../redux/actions/signdataaction";
-// import DisplayImg from "../../assests/displayGif.gif";
+import React, { useEffect, useRef, useState } from 'react';
+import { GestureRecognizer, FilesetResolver, DrawingUtils } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest";
+import model from "./ModelMediapipe.task"
+import "./interpretacion.css"
 
-const Detect = () => {
-  const webcamRef = useRef(null);
+const HandGestureRecognizer = () => {
+  const webcamRef = useRef(null); // Cambiado a webcamRef
   const canvasRef = useRef(null);
-  const [webcamRunning, setWebcamRunning] = useState(false);
-  const [gestureOutput, setGestureOutput] = useState("");
   const [gestureRecognizer, setGestureRecognizer] = useState(null);
+  const [webcamRunning, setWebcamRunning] = useState(false);
+  const gestureOutputRef = useRef(null);
   const [runningMode, setRunningMode] = useState("IMAGE");
+  const [lastVideoTime, setLastVideoTime] = useState(-1);
 
-  const requestRef = useRef();
-  const [detectedData, setDetectedData] = useState([]);
-  const user = useSelector((state) => state.auth?.user);
-  const { accessToken } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
-  const [currentImage, setCurrentImage] = useState(null);
-  let startTime;
+  const videoWidth = 480;
+  const videoHeight = 360;
 
-  // Ciclo para actualizar la imagen de práctica
+  // Initialize GestureRecognizer once when the component mounts
   useEffect(() => {
-    let intervalId;
-    if (webcamRunning) {
-      intervalId = setInterval(() => {
-        const randomIndex = Math.floor(Math.random() * SignImageData.length);
-        const randomImage = SignImageData[randomIndex];
-        setCurrentImage(randomImage);
-      }, 5000);
-    }
-    return () => clearInterval(intervalId);
-  }, [webcamRunning]);
-
-  const predictWebcam = useCallback(() => {
-    if (runningMode === "IMAGE") {
-      setRunningMode("VIDEO");
-      gestureRecognizer.setOptions({ runningMode: "VIDEO" });
-    }
-
-    let nowInMs = Date.now();
-    const results = gestureRecognizer.recognizeForVideo(
-      webcamRef.current.video,
-      nowInMs
-    );
-
-    const canvasCtx = canvasRef.current.getContext("2d");
-    canvasCtx.save();
-    canvasCtx.clearRect(
-      0,
-      0,
-      canvasRef.current.width,
-      canvasRef.current.height
-    );
-
-    const videoWidth = webcamRef.current.video.videoWidth;
-    const videoHeight = webcamRef.current.video.videoHeight;
-
-    webcamRef.current.video.width = videoWidth;
-    webcamRef.current.video.height = videoHeight;
-
-    canvasRef.current.width = videoWidth;
-    canvasRef.current.height = videoHeight;
-
-    if (results.landmarks) {
-      for (const landmarks of results.landmarks) {
-        drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
-          color: "#00FF00",
-          lineWidth: 5,
-        });
-
-        drawLandmarks(canvasCtx, landmarks, { color: "#FF0000", lineWidth: 2 });
-      }
-    }
-
-    if (results.gestures.length > 0) {
-      setDetectedData((prevData) => [
-        ...prevData,
-        { SignDetected: results.gestures[0][0].categoryName },
-      ]);
-
-      setGestureOutput(results.gestures[0][0].categoryName);
-    } else {
-      setGestureOutput("");
-    }
-
-    if (webcamRunning === true) {
-      requestRef.current = requestAnimationFrame(predictWebcam);
-    }
-  }, [webcamRunning, runningMode, gestureRecognizer, setGestureOutput]);
-
-  const animate = useCallback(() => {
-    requestRef.current = requestAnimationFrame(animate);
-    predictWebcam();
-  }, [predictWebcam]);
-
-  const enableCam = useCallback(() => {
-    if (!gestureRecognizer) {
-      alert("Please wait for gestureRecognizer to load");
-      return;
-    }
-
-    if (webcamRunning === true) {
-      setWebcamRunning(false);
-      cancelAnimationFrame(requestRef.current);
-      setCurrentImage(null);
-
-      const endTime = new Date();
-
-      const timeElapsed = (
-        (endTime.getTime() - startTime.getTime()) /
-        1000
-      ).toFixed(2);
-
-      const nonEmptyData = detectedData.filter(
-        (data) => data.SignDetected !== ""
-      );
-
-      const resultArray = [];
-      let current = nonEmptyData[0];
-
-      for (let i = 1; i < nonEmptyData.length; i++) {
-        if (nonEmptyData[i].SignDetected !== current.SignDetected) {
-          resultArray.push(current);
-          current = nonEmptyData[i];
-        }
-      }
-
-      resultArray.push(current);
-
-      const countMap = new Map();
-      for (const item of resultArray) {
-        const count = countMap.get(item.SignDetected) || 0;
-        countMap.set(item.SignDetected, count + 1);
-      }
-
-      const sortedArray = Array.from(countMap.entries()).sort(
-        (a, b) => b[1] - a[1]
-      );
-
-      const outputArray = sortedArray
-        .slice(0, 5)
-        .map(([sign, count]) => ({ SignDetected: sign, count }));
-
-      const data = {
-        signsPerformed: outputArray,
-        username: user?.name,
-        userId: user?.userId,
-        createdAt: String(endTime),
-        secondsSpent: Number(timeElapsed),
-      };
-
-      dispatch(addSignData(data));
-      setDetectedData([]);
-    } else {
-      setWebcamRunning(true);
-      startTime = new Date();
-      requestRef.current = requestAnimationFrame(animate);
-    }
-  }, [
-    webcamRunning,
-    gestureRecognizer,
-    animate,
-    detectedData,
-    user?.name,
-    user?.userId,
-    dispatch,
-  ]);
-
-  useEffect(() => {
-    async function loadGestureRecognizer() {
-      const vision = await FilesetResolver.forVisionTasks(
-        "../../../public/modelo/" // Ruta local donde se encuentra tu modelo
-      );
+    const createGestureRecognizer = async () => {
+      const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm");
       const recognizer = await GestureRecognizer.createFromOptions(vision, {
         baseOptions: {
-          modelAssetPath: "../../../public/modelo/",
+          modelAssetPath: model,
+          delegate: "GPU",
+          imageDimensions: { width: videoWidth, height: videoHeight } // Especifica las dimensiones
         },
-        numHands: 2,
-        runningMode: runningMode,
+        runningMode: "IMAGE"
       });
       setGestureRecognizer(recognizer);
+    };
+
+    createGestureRecognizer();
+  }, []);
+
+  useEffect(() => {
+    const hasGetUserMedia = () => {
+        return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    };
+
+    if (hasGetUserMedia()) {
+        console.log("Webcam access is supported.");
+    } else {
+        console.warn("getUserMedia() is not supported by your browser");
     }
-    loadGestureRecognizer();
-  }, [runningMode]);
+  }, []);
+
+  const enableCam = async () => {
+    if (!gestureRecognizer) {
+        alert("Please wait for gestureRecognizer to load");
+        return;
+    }
+
+    setWebcamRunning(prev => !prev);
+
+    const constraints = { video: true };
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      if (webcamRef.current) {
+        webcamRef.current.srcObject = stream;  // Set the stream to the video element using ref
+        webcamRef.current.addEventListener("loadeddata", predictWebcam);  // Call the predictWebcam function when video is loaded
+      }
+    } catch (err) {
+      console.error("Error accessing webcam:", err);
+    }
+  };
+
+  const predictWebcam = async () => {
+    console.log("prueba")
+    const canvasCtx = canvasRef.current.getContext("2d");
+    const video = webcamRef.current; // Cambiado a webcamRef
+
+    if (runningMode === "IMAGE") {
+        setRunningMode("VIDEO");
+        await gestureRecognizer.setOptions({ runningMode: "VIDEO" });
+    }
+
+    console.log(runningMode)
+
+    let nowInMs = Date.now();
+    if (video.currentTime !== lastVideoTime) {
+        setLastVideoTime(video.currentTime);
+        const results = await gestureRecognizer.recognizeForVideo(video, nowInMs);
+        console.log(results)
+        canvasCtx.save();
+        canvasCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+        const drawingUtils = new DrawingUtils(canvasCtx);
+
+        if (results.landmarks) {
+            for (const landmarks of results.landmarks) {
+                drawingUtils.drawConnectors(landmarks, GestureRecognizer.HAND_CONNECTIONS, {
+                    color: "#00FF00",
+                    lineWidth: 5,
+                });
+                drawingUtils.drawLandmarks(landmarks, {
+                    color: "#FF0000",
+                    lineWidth: 2,
+                });
+            }
+        }
+        canvasCtx.restore();
+
+        if (results.gestures.length > 0) {
+            gestureOutputRef.current.style.display = "block";
+            const categoryName = results.gestures[0][0].categoryName;
+            const categoryScore = parseFloat(results.gestures[0][0].score * 100).toFixed(2);
+            const handedness = results.handednesses[0][0].displayName;
+
+            gestureOutputRef.current.innerText = `GestureRecognizer: ${categoryName}\n Confidence: ${categoryScore} %\n Handedness: ${handedness}`;
+            console.log(`GestureRecognizer: ${categoryName}\n Confidence: ${categoryScore} %\n Handedness: ${handedness}`)
+        } else {
+            gestureOutputRef.current.style.display = "none";
+        }
+
+        // Keep predicting if webcam is running
+        if (webcamRunning) {
+            console.log("running")
+            window.requestAnimationFrame(predictWebcam);
+        }
+    }
+  };
 
   return (
-    <>
-      <div className="signlang_detection-container">
-        {accessToken ? (
-          <>
-            <div style={{ position: "relative" }}>
-              <Webcam
-                audio={false}
-                ref={webcamRef}
-                className="signlang_webcam"
-              />
+    <div>
+      <h1>Recognize hand gestures using the MediaPipe HandGestureRecognizer</h1>
 
-              <canvas ref={canvasRef} className="signlang_canvas" />
+      <section>
+        <h2>Webcam continuous hand gesture detection</h2>
+        <p>Use your hand to make gestures in front of the camera to get gesture classification.</p>
+        <button onClick={enableCam} className="mdc-button mdc-button--raised">
+          {webcamRunning ? "DISABLE WEBCAM" : "ENABLE WEBCAM"}
+        </button>
 
-              <div className="signlang_data-container">
-                <button onClick={enableCam}>
-                  {webcamRunning ? "Stop" : "Start"}
-                </button>
-
-                <div className="signlang_data">
-                  <p className="gesture_output">{gestureOutput}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="signlang_imagelist-container">
-              <h2 className="gradient__text">Image</h2>
-
-              <div className="signlang_image-div">
-                {currentImage ? (
-                  <img src={currentImage.url} alt={`img ${currentImage.id}`} />
-                ) : (
-                  <h3 className="gradient__text">
-                    Click on the Start Button <br /> to practice with Images
-                  </h3>
-                )}
-              </div>
-            </div>
-          </>
-        ) : null}
-      </div>
-    </>
+        <div style={{ position: 'relative' }}>
+          <video ref={webcamRef} autoPlay playsInline width={videoWidth} height={videoHeight} />
+          <canvas ref={canvasRef} width={videoWidth} height={videoHeight} style={{ position: 'absolute', top: 0, left: 0 }} />
+        </div>
+        <p ref={gestureOutputRef} className="output" style={{ display: 'none', width: videoWidth }}></p>
+      </section>
+    </div>
   );
 };
 
-export default Detect;
+export default HandGestureRecognizer;
