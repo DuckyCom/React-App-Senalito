@@ -8,59 +8,53 @@ import './diccionario.css';
 const Diccionario = () => {
   const navigate = useNavigate();
   return (
-    <div className="container"> 
+    <><div className="container">
       <div className='header'>
-        <h2> 
+        <h2>
           <img
             src={FlechaA}
             alt="atras"
-            onClick={() => navigate('/home')}
-          /> 
+            onClick={() => navigate('/home')} />
           Diccionario LSA
         </h2>
       </div>
-      
+
       <div className="card-container">
         <CardFam
           title="Familia"
           description="Aprende todas las palabras sobre la categoría familia."
           buttonText="Ver categoría"
-          link="/catfam"
-        />
+          link="/catfam" />
         <CardFam
           title="Deportes"
           description="Aprende todas las palabras sobre la categoría deportes."
           buttonText="Ver categoría"
-          link="#"
-        />
+          link="#" />
         <CardFam
           title="Números"
           description="Aprende todas las palabras sobre la categoría números."
           buttonText="Ver categoría"
-          link="#"
-        />
+          link="#" />
         <CardFam
           title="Colores"
           description="Aprende todas las palabras sobre la categoría colores."
           buttonText="Ver categoría"
-          link="#"
-        />
+          link="#" />
         <CardFam
           title="Saludos"
           description="Aprende todas las palabras sobre la categoría saludos."
           buttonText="Ver categoría"
-          link="#"
-        />
+          link="#" />
         <CardFam
           title="Alimentos"
           description="Aprende todas las palabras sobre la categoría alimentos."
           buttonText="Ver categoría"
-          link="#"
-        />
-     
+          link="#" />
+
       </div>
-      <Navbar />
-      </div>
+
+    </div>
+    <Navbar /></>
 
   );
 };

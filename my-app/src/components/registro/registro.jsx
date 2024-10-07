@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import InputMask from 'react-input-mask'; // Importa InputMask
+import InputMask from 'react-input-mask';
 import Logo from "../img/logo.png";
 import Flecha from "../img/Shape.png";
 import "../login/login.css";
@@ -129,7 +129,7 @@ const Register = () => {
           </div>
 
           <p className="login-bottom-p">
-            ¿Ya tienes cuenta? <a href="#" onClick={() => navigate('/login')}>Iniciar sesión</a>
+            ¿Ya tienes cuenta? <a href="#" onClick={() => navigate('/')}>Iniciar sesión</a>
           </p>
         </div>
       </div>
