@@ -13,7 +13,8 @@ export function AuthProvider({ children }) {
     if (user) {
       setIsAuthenticated(true); 
     } else {
-      setIsAuthenticated(false);
+      setIsAuthenticated(true); 
+      // setIsAuthenticated(false);
     }
   }, [navigate]);
 

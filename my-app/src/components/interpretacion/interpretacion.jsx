@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { GestureRecognizer, FilesetResolver, DrawingUtils } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest";
 import model from "./ModelMediapipe.task"
 import "./interpretacion.css"
+import Navbar from '../navbar/navbar.jsx';
 
 const HandGestureRecognizer = () => {
   const webcamRef = useRef(null); // Cambiado a webcamRef
@@ -12,8 +13,8 @@ const HandGestureRecognizer = () => {
   const [runningMode, setRunningMode] = useState("IMAGE");
   const [lastVideoTime, setLastVideoTime] = useState(-1);
 
-  const videoWidth = 480;
-  const videoHeight = 360;
+  const videoWidth = 600;
+  const videoHeight = 500;
 
   // Initialize GestureRecognizer once when the component mounts
   useEffect(() => {
@@ -121,24 +122,33 @@ const HandGestureRecognizer = () => {
     }
   };
 
+
   return (
-    <div>
-      <h1>Recognize hand gestures using the MediaPipe HandGestureRecognizer</h1>
-
-      <section>
-        <h2>Webcam continuous hand gesture detection</h2>
-        <p>Use your hand to make gestures in front of the camera to get gesture classification.</p>
-        <button onClick={enableCam} className="mdc-button mdc-button--raised">
-          {webcamRunning ? "DISABLE WEBCAM" : "ENABLE WEBCAM"}
-        </button>
-
-        <div style={{ position: 'relative' }}>
-          <video ref={webcamRef} autoPlay playsInline width={videoWidth} height={videoHeight} />
-          <canvas ref={canvasRef} width={videoWidth} height={videoHeight} style={{ position: 'absolute', top: 0, left: 0 }} />
+    <div className="main-container" style={{ width: '340px', margin: '0 auto', padding: '10px', boxSizing: 'border-box' }}>
+    <section>
+      <h2><img src="./FlechaAtras.png"/> Interpretación</h2>
+  
+      <div className="camera-container" style={{ position: 'relative', width: '320px', height: '200px' }}> {/* Altura reducida a 200px */}
+        {/* Video y Canvas con ancho de 320px y altura ajustada */}
+        <video ref={webcamRef} autoPlay playsInline width="320" height="200" /> {/* Altura ajustada a 200px */}
+        <canvas ref={canvasRef} width="320" height="200" style={{ position: 'absolute', top: 0, left: 0 }} /> {/* Altura ajustada a 200px */}
+  
+        {/* Botón superpuesto y alineado */}
+        <div className="button-container" style={{ position: 'absolute', bottom: '0', left: 0, width: '320px', textAlign: 'center' }}>
+          <button onClick={enableCam} className="mdc-button mdc-button--raised" style={{ width: '320px', height: '50px', backgroundColor: '#575757'}}>
+            <div style={{ width: '30px', height: '30px', backgroundColor: '#fff', margin: '0 auto' }}></div>
+          </button>
         </div>
-        <p ref={gestureOutputRef} className="output" style={{ display: 'none', width: videoWidth }}></p>
-      </section>
-    </div>
+      </div>
+  
+      <div className="output-container">
+        <p ref={gestureOutputRef} className="output" style={{ display: 'none', width: '320px' }}></p>
+      </div>
+    </section>
+  <Navbar/>
+  </div>
+  
+  
   );
 };
 
